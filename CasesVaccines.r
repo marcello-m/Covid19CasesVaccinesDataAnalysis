@@ -7,6 +7,7 @@ library(pracma)
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
+
 # library(ggmap) abilitate this library if you plan to use a Google API key to generate maps
 library(ggrepel)
 library(RColorBrewer)
@@ -54,6 +55,7 @@ for(i in 1:length(ndays)){
 	nweek[i] <- floor(((ndays[i]-4)/7)+1)
 }
 YearWeekISO <- vector(mode="character", length=length(nweek)) # ISO 8601
+
 for(i in 1:length(nweek)){
 	if(nweek[i]<10){
 		YearWeekISO[i] <- paste0("2021-W0",nweek[i])
@@ -62,7 +64,6 @@ for(i in 1:length(nweek)){
 	}
 }
 cases_weekly <- cbind(cases_weekly, YearWeekISO)
-# cases_weekly <- cases_weekly[,c(9,2,3,4,5,6,7,8)]
 cases_weekly <- cases_weekly[,c(11,5,6,7,9,10)]
 cases_weekly_tot <- as.data.frame(summarize(group_by(cases_weekly,countriesAndTerritories,YearWeekISO), unique(countryterritoryCode), sum(cases) ,sum(deaths), unique(popData2020)))
 colnames(cases_weekly_tot)<-c("countriesAndTerritories","YearWeekISO","countryterritoryCode","cases","deaths","popData2020")
@@ -113,19 +114,16 @@ for(i in 1:length(countries)){
 			FirstDose_age[k] <- FirstDose_age[k] + vaccine_age$FirstDose[j]
 			SecondDose_age[k] <- SecondDose_age[k] + vaccine_age$SecondDose[j]
 		}
-		
 		# CONDITION FOR 18-49 GROUP
 		else if(vaccine_age$TargetGroup[j]%in%f2){
 			FirstDose_age[k+1] <- FirstDose_age[k+1] + vaccine_age$FirstDose[j]
 			SecondDose_age[k+1] <- SecondDose_age[k+1] + vaccine_age$SecondDose[j]
 		}
-		
 		# CONDITION FOR 50-79 GROUP
 		else if(vaccine_age$TargetGroup[j]%in%f3){
 			FirstDose_age[k+2] <- FirstDose_age[k+2] + vaccine_age$FirstDose[j]
 			SecondDose_age[k+2] <- SecondDose_age[k+2] + vaccine_age$SecondDose[j]
 		}
-		
 		# CONDITION FOR 80+ GROUP
 		else if(strcmp(vaccine_age$TargetGroup[j],"Age80+")){
 			FirstDose_age[k+3] <- FirstDose_age[k+3] + vaccine_age$FirstDose[j]
@@ -326,7 +324,6 @@ temp3 <- filter(vaccine_c, TargetGroup=="ALL")
 vaccine_mono_tot <- as.data.frame(summarize(group_by(temp1, ReportingCountry),sum(FirstDose), sum(NumberDosesReceived), unique(Population)))
 vaccine_double_tot <- as.data.frame(summarize(group_by(temp2, ReportingCountry),sum(FirstDose), sum(SecondDose), sum(UnknownDose), sum(NumberDosesReceived), unique(Population)))
 vaccine_tot <- as.data.frame(summarize(group_by(temp3, ReportingCountry),sum(FirstDose), sum(SecondDose), sum(UnknownDose), sum(NumberDosesReceived), unique(Population)))
-
 rm(temp1,temp2)
 
 colnames(vaccine_mono_tot) <- c("ReportingCountry","FirstDose","NumberDosesReceived","Population")
@@ -366,7 +363,6 @@ ggplot(temp, aes(x=reorder(ReportingCountry,-doses), y=doses, fill=dose))+geom_b
 ggsave("total_vaccines_doses_by_country.png", width=2120, height=1080, units="px", path=IMAGE_PATH, scale=3)
 
 # percentages over total population
-
 percPrimaDose <- vector("numeric", length=nrow(vaccine_double_tot))
 for(i in 1:nrow(vaccine_double_tot)){
 	percPrimaDose[i] <- (vaccine_double_tot$FirstDose[i]/vaccine_double_tot$Population[i])*100
@@ -412,7 +408,6 @@ totals <- temp3 %>% group_by(ReportingCountry) %>% summarize(total = sum(percs))
 ggplot(temp3,aes(x=reorder(ReportingCountry,-percs), y=percs, fill=dose))+geom_bar(stat="identity",position="stack")+labs(x="Countries",y="Vaccine inoculation (%)")+ggtitle(label="Percentages of people who completed the vaccination cycle in EU countries")+geom_text(totals,mapping=aes(x=ReportingCountry, y=total, label=sprintf("%.02f%%",round(total,digits=2)),vjust=-0.9,fill=NULL))
 ggsave("vaccine_complete_cycle_percentage_bar_plot.png", width=1920, height=1080, units="px", path=IMAGE_PATH, scale=3)
 
-
 # percentage of doses used to those received
 # received doses data was not available for every country
 percReceived <- vector("numeric", length=sum(!is.na(vaccine_tot$NumberDosesReceived)))
@@ -457,7 +452,6 @@ for(i in 1:length(countries_age)){
     }
 }
 ggsave("vaccine_second_dose_age_groups.png", plot=do.call("grid.arrange",c(plt_age, ncol=9)), width=1920, height=1080, units="px", path=IMAGE_PATH, scale=3)
-
 
 # time evolution 
 plt_time <- list()
